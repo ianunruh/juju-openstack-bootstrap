@@ -14,5 +14,5 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
   end
 
-  config.vm.provision :shell, inline: "cd /vagrant && ./install-dependencies.sh && ./bootstrap.py"
+  config.vm.provision :shell, inline: "cd /vagrant && ./install-dependencies.sh && ./bootstrap.py -v"
 end

@@ -31,14 +31,14 @@ def configure_logger(verbose=False):
     else:
         log.setLevel(logging.WARN)
 
-def prepare_environment(config, image_metadata_url):
+def prepare_environment(config):
     environments = {
         'default': 'openstack',
         'environments': {
             'openstack': {
                 'type': 'openstack',
                 'use-floating-ip': config['use-floating-ip'],
-                'image-metadata-url': image_metadata_url,
+                'control-bucket': config['control-bucket'],
                 'network': config['network'],
                 'auth-url': config['auth-url'],
                 'region': config['region'],
@@ -90,11 +90,21 @@ def prepare_image(glance, options):
         copy_from=options['url'],
     )
 
-def push_image_metadata(swift, container_name, images):
-    log.debug('Preparing Swift container [%s]', container_name)
-    swift.put_container(container_name)
-    swift.post_container(container_name, headers=SWIFT_CONTAINER_HEADERS)
+def clean_container(swift, control_bucket):
+    try:
+        log.info('Looking for existing container [%s]', control_bucket)
+        container, objects = swift.get_container(control_bucket, full_listing=True)
 
+        for o in objects:
+            log.info('Deleting object [%s]', o['name'])
+            swift.delete_object(control_bucket, o['name'])
+
+        log.info('Deleting container [%s]', control_bucket)
+        swift.delete_container(control_bucket)
+    except:
+        pass
+
+def push_image_metadata(swift, control_bucket, images):
     cwd = os.getcwd()
 
     metadata_tmp = tempfile.mkdtemp()
@@ -104,12 +114,11 @@ def push_image_metadata(swift, container_name, images):
         log.debug('Generating metadata for image [%s] [%s]', image.name, series)
         check_output(['juju', 'metadata', 'generate-image', '-i', image.id, '-s', series, '-d', metadata_tmp])
 
-    os.chdir(os.path.join(metadata_tmp, 'images'))
     for filename in glob2.glob('**/*'):
         if os.path.isfile(filename):
             with open(filename) as fp:
-                log.debug('Pushing file to Swift [%s]', filename)
-                swift.put_object(container_name, filename, fp)
+                log.debug('Pushing file to control bucket [%s]', filename)
+                swift.put_object(control_bucket, filename, fp)
 
     log.debug('Cleaning up temporary files')
     os.chdir(cwd)
@@ -120,7 +129,6 @@ def main():
     parser.add_argument('-c', '--config-file', default='config.yml')
     parser.add_argument('-v', '--verbose', action='store_true')
     parser.add_argument('--skip-bootstrap', action='store_true', help='Skip juju bootstrap')
-    parser.add_argument('--skip-sync-tools', action='store_true', help='Skip juju sync-tools')
 
     args = parser.parse_args()
     
@@ -150,14 +158,15 @@ def main():
         preauthtoken=auth_token,
     )
 
-    image_metadata_url = SWIFT_CONTAINER_URL_FORMAT.format(swift_endpoint, config['image-metadata-container'])
-    prepare_environment(config, image_metadata_url)
+    prepare_environment(config)
+
+    clean_container(swift, config['control-bucket'])
+   
+    log.info('Running juju sync-tools')
+    check_call(['juju', 'sync-tools'])
 
     images = prepare_images(glance, config['series'])
-    push_image_metadata(swift, config['image-metadata-container'], images)
-
-    if not args.skip_sync_tools:
-        check_call(['juju', 'sync-tools'])
+    push_image_metadata(swift, config['control-bucket'], images)
 
     if not args.skip_bootstrap:
         check_call(['juju', 'bootstrap'])

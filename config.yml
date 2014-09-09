@@ -1,6 +1,7 @@
 # Juju OpenStack environment parameters
 network: net04
 use-floating-ip: true
+control-bucket: d4ec92f6d539a8be6a63845e
 
 # Keystone authentication parameters
 auth-url: http://172.20.4.10:5000/v2.0
@@ -8,9 +9,6 @@ region: RegionOne
 tenant-name: admin
 username: admin
 password: admin
-
-# Name of the Swift container used to serve image metadata
-image-metadata-container: image-metadata
 
 # Mapping of Juju series to cloud images
 series:
