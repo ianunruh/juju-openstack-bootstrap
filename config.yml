@@ -1,5 +1,6 @@
-# Name of the network to deploy instances on
+# Juju OpenStack environment parameters
 network: net04
+use-floating-ip: true
 
 # Keystone authentication parameters
 auth-url: http://172.20.4.10:5000/v2.0

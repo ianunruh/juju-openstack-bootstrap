@@ -37,7 +37,7 @@ def prepare_environment(config, image_metadata_url):
         'environments': {
             'openstack': {
                 'type': 'openstack',
-                'use-floating-ip': True,
+                'use-floating-ip': config['use-floating-ip'],
                 'image-metadata-url': image_metadata_url,
                 'network': config['network'],
                 'auth-url': config['auth-url'],
@@ -113,13 +113,14 @@ def push_image_metadata(swift, container_name, images):
 
     log.debug('Cleaning up temporary files')
     os.chdir(cwd)
-    shutil.rmtree(metadata_tmp)        
+    shutil.rmtree(metadata_tmp)
 
 def main():
     parser = ArgumentParser()
     parser.add_argument('-c', '--config-file', default='config.yml')
     parser.add_argument('-v', '--verbose', action='store_true')
     parser.add_argument('--skip-bootstrap', action='store_true', help='Skip juju bootstrap')
+    parser.add_argument('--skip-sync-tools', action='store_true', help='Skip juju sync-tools')
 
     args = parser.parse_args()
     
@@ -154,6 +155,9 @@ def main():
 
     images = prepare_images(glance, config['series'])
     push_image_metadata(swift, config['image-metadata-container'], images)
+
+    if not args.skip_sync_tools:
+        check_call(['juju', 'sync-tools'])
 
     if not args.skip_bootstrap:
         check_call(['juju', 'bootstrap'])
