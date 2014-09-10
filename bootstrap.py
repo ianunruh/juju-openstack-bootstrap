@@ -151,7 +151,7 @@ def main():
     parser.add_argument('--clean-control-bucket', action='store_true', help='Remove existing control bucket')
     parser.add_argument('--clean-images', action='store_true', help='Remove existing Juju images')
     parser.add_argument('--clean-environment', action='store_true', help='Remove Juju environments directory')
-    parser.add_argument('--clean-all', action='store_true', 'Clean everything')
+    parser.add_argument('--clean-all', action='store_true', help='Clean everything')
 
     args = parser.parse_args()
 
