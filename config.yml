@@ -1,7 +1,7 @@
 # Juju OpenStack environment parameters
 network: net04
 use-floating-ip: true
-control-bucket: d4ec92f6d539a8be6a63845e
+control-bucket: juju-environment
 
 # Keystone authentication parameters
 auth-url: http://172.20.4.10:5000/v2.0
