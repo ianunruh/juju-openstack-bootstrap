@@ -31,6 +31,11 @@ def configure_logger(verbose=False):
     else:
         log.setLevel(logging.WARN)
 
+def clean_environment():
+    juju_env_path = os.path.expanduser('~/.juju/environments')
+    if os.path.isdir(juju_env_path):
+        shutil.rmtree(juju_env_path)
+
 def prepare_environment(config):
     environments = {
         'default': 'openstack',
@@ -59,6 +64,18 @@ def prepare_environment(config):
     log.debug('Creating Juju environment config')
     with open(juju_env_path, 'w') as fp:
         yaml.dump(environments, fp, default_flow_style=False)
+
+def clean_images(glance, series):
+    for series_name, options in series.iteritems():
+        clean_image(glance, options)
+
+def clean_image(glance, options):
+    for image in glance.images.list():
+        if image.name == options['name']:
+            log.info('Deleting image [%s]', image.name)
+            image.delete()
+
+            return
 
 def prepare_images(glance, series):
     images = {}
@@ -131,8 +148,17 @@ def main():
     parser.add_argument('-c', '--config-file', default='config.yml')
     parser.add_argument('-v', '--verbose', action='store_true')
     parser.add_argument('--skip-bootstrap', action='store_true', help='Skip juju bootstrap')
+    parser.add_argument('--clean-control-bucket', action='store_true', help='Remove existing control bucket')
+    parser.add_argument('--clean-images', action='store_true', help='Remove existing Juju images')
+    parser.add_argument('--clean-environment', action='store_true', help='Remove Juju environments directory')
+    parser.add_argument('--clean-all', action='store_true', 'Clean everything')
 
     args = parser.parse_args()
+
+    if args.clean_all:
+        args.clean_control_bucket = True
+        args.clean_images = True
+        args.clean_environment = True
     
     configure_logger(args.verbose)
 
@@ -160,9 +186,14 @@ def main():
         preauthtoken=auth_token,
     )
 
-    prepare_environment(config)
+    if args.clean_environment:
+        clean_environment()
+    if args.clean_control_bucket:
+        clean_container(swift, config['control-bucket'])
+    if args.clean_images:
+        clean_images(glance, config['series'])
 
-    clean_container(swift, config['control-bucket'])
+    prepare_environment(config)
    
     log.info('Running juju sync-tools')
     check_call(['juju', 'sync-tools'])
