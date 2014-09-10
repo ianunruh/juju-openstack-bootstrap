@@ -27,11 +27,12 @@ This tool does the following steps to prepare for Juju. It is based off of the [
 
 1. Retrieve service catalog and token from Keystone
 2. Prepare the `environments.yaml` file for the Juju client
-3. Delete the control bucket if it already exists
+3. (optional) Delete the control bucket if it exists
 4. Run `juju sync-tools`
-5. Upload Ubuntu cloud images using Glance
-6. Generate image metadata files using `juju metadata generate-image`
-7. Upload generated image metadata to the control bucket
-8. Run `juju bootstrap`
+5. (optional) Delete any existing images if they exist
+6. Upload Ubuntu cloud images using Glance
+7. Generate image metadata files using `juju metadata generate-image`
+8. Upload generated image metadata to the control bucket
+9. Run `juju bootstrap`
 
 Juju creates and uses a container on Swift for metadata storage (called the control bucket). This container is created when running `juju sync-tools` or `juju bootstrap`.

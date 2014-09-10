@@ -1,0 +1,5 @@
+python-keystoneclient
+python-glanceclient
+python-swiftclient
+pyyaml
+glob2
