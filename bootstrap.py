@@ -67,8 +67,8 @@ def prepare_images(glance, series):
         images[series_name] = prepare_image(glance, options)
 
     for image in images.itervalues():
-        if image.status != 'active':
-            log.info('Waiting 10 seconds for image [%s]', image.name)
+        while image.status != 'active':
+            log.info('Waiting 10 seconds for image to become active [%s] [%s]', image.name, image.status)
             time.sleep(10)
 
             image = glance.images.get(image.id)
@@ -81,12 +81,14 @@ def prepare_image(glance, options):
             log.debug('Image already exists [%s]', image.name)
             return image
 
-    log.debug('Creating image [%s]', image.name)
+    log.debug('Creating image [%s]', options['name'])
 
     return glance.images.create(
         name=options['name'],
         disk_format=options.get('disk-format', 'qcow2'),
         container_format=options.get('container-format', 'bare'),
+        min_disk=options.get('min-disk', '8'),
+        min_ram=options.get('min-ram', '256'),
         copy_from=options['url'],
     )
 
