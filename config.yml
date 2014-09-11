@@ -18,3 +18,8 @@ series:
   precise:
     name: juju-ubuntu-server-12.04-x64
     url: http://cloud-images.ubuntu.com/precise/current/precise-server-cloudimg-amd64-disk1.img
+
+  # Uncomment the following to enable the Utopic image
+  # utopic:
+  #   name: juju-ubuntu-server-14.10-x64
+  #   url: http://cloud-images.ubuntu.com/utopic/current/utopic-server-cloudimg-amd64-disk1.img
