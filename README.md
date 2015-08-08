@@ -23,16 +23,15 @@ That's it!
 
 ### Process
 
-This tool does the following steps to prepare for Juju. It is based off of the [Set up a Private Cloud using Simplestreams](https://juju.ubuntu.com/docs/howto-privatecloud.html) guide.
+This tool does the following steps to prepare for Juju. It is based off of the [Set up a Private Cloud using Simplestreams](https://jujucharms.com/docs/stable/howto-privatecloud) guide.
 
 1. Retrieve service catalog and token from Keystone
 2. Prepare the `environments.yaml` file for the Juju client
-3. (optional) Delete the control bucket if it exists
-4. Run `juju sync-tools`
-5. (optional) Delete any existing images if they exist
-6. Upload Ubuntu cloud images using Glance
-7. Generate image metadata files using `juju metadata generate-image`
-8. Upload generated image metadata to the control bucket
-9. Run `juju bootstrap`
+3. (optional) Delete the metadata container if it exists
+4. (optional) Delete any existing images if they exist
+5. Upload Ubuntu cloud images using Glance
+6. Generate image metadata files using `juju metadata generate-image`
+7. Upload generated image metadata to the metadata container
+8. Run `juju bootstrap`
 
-Juju creates and uses a container on Swift for metadata storage (called the control bucket). This container is created when running `juju sync-tools` or `juju bootstrap`.
+Juju creates and uses a container on Swift for image metadata. This container is created when running `juju sync-tools` or `juju bootstrap`.

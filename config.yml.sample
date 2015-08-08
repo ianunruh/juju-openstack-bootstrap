@@ -1,7 +1,7 @@
 # Juju OpenStack environment parameters
 network: net04
 use-floating-ip: true
-control-bucket: juju-environment
+container-name: juju
 
 # Keystone authentication parameters
 auth-url: http://172.20.4.10:5000/v2.0
@@ -18,6 +18,6 @@ series:
   trusty:
     name: juju-ubuntu-server-14.04-x64
     url: http://cloud-images.ubuntu.com/trusty/current/trusty-server-cloudimg-amd64-disk1.img
-  utopic:
-    name: juju-ubuntu-server-14.10-x64
-    url: http://cloud-images.ubuntu.com/utopic/current/utopic-server-cloudimg-amd64-disk1.img
+  vivid:
+    name: juju-ubuntu-server-15.04-x64
+    url: http://cloud-images.ubuntu.com/vivid/current/vivid-server-cloudimg-amd64-disk1.img
